@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth as FacadesJWTAuth;
+use Tymon\JWTAuth\JWTAuth as JWTAuthJWTAuth;
 
 class AuthController extends Controller
 {
@@ -76,15 +77,39 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return response()->json(auth()->user());
-    }
+        try {
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'data' => [],
+                    'message' => 'user not found'
+                ], 404);
+            }
+        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
 
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => 'token expired'
+            ], 401);
+
+        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => 'token invalid'
+            ], 401);
+
+        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => 'token absent'
+            ], 401);
+        }
+
+        return response()->json(compact('user'));
     }
 }
