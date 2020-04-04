@@ -19,13 +19,13 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-           if (! $token = JWTAuth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'success' => false,
                     'data' => [],
                     'message' => 'your email or password is wrong'
                 ], 401);
-           }
+            }
         } catch (JWTException $e) {
             return response()->json([
                 'success' => false,
@@ -70,44 +70,19 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(Request $request)
-    {
-       return response()->json(auth()->refresh());
-    }
-
-    public function me(Request $request)
+    public function getAuthenticatedUser()
     {
         try {
-            if (! $user = JWTAuth::parseToken()->authenticate()) {
-                return response()->json([
-                    'success' => false,
-                    'data' => [],
-                    'message' => 'user not found'
-                ], 404);
+
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
             }
         } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-
-            return response()->json([
-                'success' => false,
-                'data' => [],
-                'message' => 'token expired'
-            ], 401);
-
+            return response()->json(['token_expired'], 401);
         } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-
-            return response()->json([
-                'success' => false,
-                'data' => [],
-                'message' => 'token invalid'
-            ], 401);
-
+            return response()->json(['token_invalid'], 401);
         } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
-
-            return response()->json([
-                'success' => false,
-                'data' => [],
-                'message' => 'token absent'
-            ], 401);
+            return response()->json(['token_absent'], 401);
         }
 
         return response()->json(compact('user'));

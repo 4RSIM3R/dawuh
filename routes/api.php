@@ -21,6 +21,16 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'Api\AuthController@login');
     Route::post('register', 'Api\AuthController@register');
-    Route::post('refresh', 'Api\AuthController@refresh');
-    Route::post('me', 'Api\AuthController@me');
 });
+
+Route::group(['prefix' => 'dawuh', 'middleware' => ['jwt.verify']], function () {
+    Route::get('closed', 'Api\DawuhController@closed');
+});
+
+// Route::group(['prefix' => 'dawuh'], function () {
+//     Route::get('all', 'Api\DawuhController@all');
+//     Route::post('add', 'Api\DawuhController@add');
+//     Route::get('{id}', 'Api\DawuhController@detail');
+//     Route::put('update/{id}', 'Api\DawuhController@update');
+//     Route::delete('delet/{id}', 'Api\DawuhController@delete');
+// });
