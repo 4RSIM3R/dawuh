@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -33,10 +34,12 @@ class AuthController extends Controller
                 'message' => 'could not create token'
             ], 500);
         }
-
+        $user = Auth::user();
         return response()->json([
             'success' => true,
             'data' => [
+                'id' => $user->id,
+                'email' => $user->email,
                 'token' => $token
             ],
             'message' => 'login success'
@@ -73,16 +76,31 @@ class AuthController extends Controller
     public function getAuthenticatedUser()
     {
         try {
-
             if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return response()->json(['user_not_found'], 404);
+                return response()->json([
+                    'success' => false,
+                    'data' => [],
+                    'message' => "user not found"
+                ], 401);
             }
         } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return response()->json(['token_expired'], 401);
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => "token expired"
+            ], 401);
         } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return response()->json(['token_invalid'], 401);
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => "token invalid"
+            ], 401);
         } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return response()->json(['token_absent'], 401);
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => "token absent"
+            ], 401);
         }
 
         return response()->json(compact('user'));

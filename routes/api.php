@@ -24,7 +24,15 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'dawuh', 'middleware' => ['jwt.verify']], function () {
-    Route::get('closed', 'Api\DawuhController@closed');
+    Route::get('all', 'Api\DawuhController@index');
+    Route::get('detail/{id}', 'Api\DawuhController@detail');
+    Route::post('add', 'Api\DawuhController@add');
+    Route::put('update/{id}', 'Api\DawuhController@update');
+    Route::delete('delete/{id}', 'Api\DawuhController@delete');
+});
+
+Route::group(['prefix' => 'me', 'middleware' => ['jwt.verify']], function () {
+    Route::get('/', 'Api\AuthController@register');
 });
 
 // Route::group(['prefix' => 'dawuh'], function () {
